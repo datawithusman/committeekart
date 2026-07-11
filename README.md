@@ -145,9 +145,37 @@ committeekart/
 
 ## Documentation
 
-- [Progress Tracker](docs/PROGRESS.md) - Kahan tak hua, kahan se shuru karna hai
-- [Architecture](docs/ARCHITECTURE.md) - System design and data model
-- [Technical Decisions](docs/DECISIONS.md) - Why each decision was made
+This project includes comprehensive, production-quality documentation.
+
+### Planning and Requirements
+| Document | Description |
+|----------|-------------|
+| [Project Proposal](docs/PROJECT_PROPOSAL.md) | Idea, problem statement, target users, market analysis, monetization |
+| [SRS (Requirements)](docs/SRS.md) | Functional and non-functional requirements specification |
+| [User Stories](docs/USER_STORIES.md) | User stories organized by role and phase |
+| [Use Case Diagram](docs/USE_CASE_DIAGRAM.md) | Actors, use cases, and system interactions |
+
+### Design
+| Document | Description |
+|----------|-------------|
+| [Flowcharts](docs/FLOWCHARTS.md) | Activity diagrams for all user flows |
+| [Wireframes](docs/WIREFRAMES.md) | ASCII wireframes for every screen |
+| [Database Design](docs/DATABASE_DESIGN.md) | ERD, table schemas, indexes, RLS policies |
+| [Architecture](docs/ARCHITECTURE.md) | System design, data flow, security, scalability |
+
+### Technical Reference
+| Document | Description |
+|----------|-------------|
+| [API Documentation](docs/API_DOCUMENTATION.md) | Server actions, Supabase queries, data access patterns |
+| [Technical Decisions](docs/DECISIONS.md) | Architecture Decision Records (why each choice was made) |
+
+### Operations
+| Document | Description |
+|----------|-------------|
+| [Test Plan](docs/TEST_PLAN.md) | Test strategy, 60+ test cases, known issues |
+| [User Manual](docs/USER_MANUAL.md) | End-user guide (English + Roman Urdu) |
+| [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) | Vercel, Google Play, App Store deployment steps |
+| [Progress Tracker](docs/PROGRESS.md) | Current status, what is done, what is next |
 
 ---
 
