@@ -221,8 +221,10 @@ export default async function CommitteeDetailPage({
                     contributionId={contribution.id}
                     committeeId={id}
                     memberName={member.name}
+                    memberPhone={member.phone}
                     amount={Number(contribution.amount)}
                     status={contribution.status}
+                    committeeName={committee.name}
                   />
                 );
               })
