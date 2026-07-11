@@ -90,7 +90,7 @@ export default async function DashboardPage() {
             href="/committees/new"
             className="rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary-dark"
           >
-            + Nai Committee
+            + New Committee
           </Link>
         </div>
 
