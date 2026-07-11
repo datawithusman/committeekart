@@ -18,7 +18,7 @@ const PROTECTED_PREFIXES = ["/dashboard", "/committees", "/settings"];
 /** Routes only for logged out users (login, signup). */
 const AUTH_ROUTES = ["/login", "/signup"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const response = NextResponse.next({
     request: {
       headers: request.headers,
