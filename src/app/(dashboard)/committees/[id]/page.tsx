@@ -124,9 +124,17 @@ export default async function CommitteeDetailPage({
                 <p className="mt-1 text-sm text-muted">{committee.description}</p>
               )}
             </div>
-            <span className="rounded-full bg-success-light px-3 py-1 text-xs font-medium capitalize text-success">
-              {committee.status}
-            </span>
+            <div className="flex flex-col items-end gap-2">
+              <span className="rounded-full bg-success-light px-3 py-1 text-xs font-medium capitalize text-success">
+                {committee.status}
+              </span>
+              <a
+                href={`/committees/${id}/export`}
+                className="rounded-lg border border-primary px-4 py-2 text-sm font-medium text-primary hover:bg-primary-light"
+              >
+                Download Report
+              </a>
+            </div>
           </div>
 
           {/* Quick stats */}
