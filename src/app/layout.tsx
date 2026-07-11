@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   title: "CommitteeKart | Track Your Savings Committees",
   description:
     "A digital committee tracker for South Asian savings circles. Track contributions, generate draw schedules, and keep everything transparent.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "CommitteeKart",
+  },
 };
 
 export default function RootLayout({

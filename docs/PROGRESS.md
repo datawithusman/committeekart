@@ -11,83 +11,84 @@
 - [x] Supabase client setup (browser + server)
 - [x] Database schema (5 tables, enums, RLS, triggers)
 - [x] Auth middleware/proxy (protected routes, session refresh)
-- [x] Landing page with CommitteeKart branding
-- [x] Signup/Login/Logout pages and actions
-- [x] Dashboard placeholder
-- [x] Git + GitHub repo (https://github.com/datawithusman/committeekart)
-- [x] Supabase project connected + schema run
-- [x] Auth flow tested and verified
+- [x] Landing page, Signup/Login/Logout, Dashboard placeholder
+- [x] Git + GitHub repo + Supabase connected
 
 ---
 
 ## Phase 2 - Core Features [COMPLETE]
 
-### Features Built
-- [x] Draw schedule generator (lottery, fixed, auction with Fisher-Yates shuffle)
-- [x] Committee create flow (form + server action + auto member insertion)
-- [x] Dynamic member rows (add/remove on create committee form)
-- [x] Dashboard with real committees list from database
-- [x] Dashboard stats (total committees, collected, pending)
+- [x] Draw schedule generator (lottery, fixed, auction)
+- [x] Committee create flow (form + server action + auto members)
+- [x] Dashboard with real committees list and stats
 - [x] Committee detail page (members, contributions, draw schedule)
-- [x] Interactive ContributionRow (mark paid/pending toggle)
-- [x] Current month contributions display (date-based calculation)
-- [x] Contributions created for ALL months at committee creation
-- [x] Empty states (no committees, no contributions)
-
-### Code Review Fixes Applied
-- [x] IDOR prevention (ownership verification in contribution actions)
-- [x] Cookie secure flag respects NODE_ENV (was hardcoded false)
-- [x] Thorough server-side validation (NaN, lengths, enum checks)
-- [x] ROSCA fairness guarantee enforced (duration = member count)
-- [x] Partial failure cleanup (cascade delete on error)
-- [x] Error messages displayed on create committee page (was silent)
-- [x] Contribution actions return ActionResult for error handling
-- [x] Draw schedule no longer cycles members (fairness)
-- [x] Updated metadata (was "Create Next App" boilerplate)
-- [x] RLS infinite recursion fixed (migration 0002)
-- [x] Button text changed to English throughout
-
-### Documentation
-- [x] 14 professional documents created (9,600+ lines)
-- [x] Project Proposal, SRS, User Stories, Use Case Diagram
-- [x] Flowcharts, Wireframes, Database Design, Architecture
-- [x] API Documentation, Test Plan, User Manual, Deployment Guide
-- [x] README updated with documentation index
-
-### Manually Tested
-- [x] Landing page renders correctly
-- [x] Signup creates account and redirects to dashboard
-- [x] Login authenticates and redirects to dashboard
-- [x] Logout works
-- [x] Protected routes redirect to login when logged out
-- [x] Committee creation works (after RLS recursion fix)
-- [x] Committee detail page shows members, contributions, draws
+- [x] Interactive contribution tracking (mark paid/pending)
+- [x] Code review fixes (security, validation, error handling)
+- [x] 14 professional documents (9,600+ lines)
 
 ---
 
-## Next Phase: Phase 3 - Polish and Deploy [NOT STARTED]
+## Phase 3 - Polish and Deploy [COMPLETE]
 
-### Planned Tasks
-- [ ] Vercel deployment (web app live)
-- [ ] Landing page polish (better hero, testimonials section)
-- [ ] Settings/Profile page (view/edit name, phone, plan)
-- [ ] Committee edit/delete functionality
-- [ ] Member invite links (shareable URLs)
-- [ ] Reports / CSV export
+### Features Built
+- [x] Settings/Profile page (view/edit name, phone, plan display)
+- [x] Committee Edit (name, description, status)
+- [x] Committee Delete (with confirmation: type DELETE)
+- [x] Global error boundary (error.tsx)
+- [x] Custom 404 page (not-found.tsx)
+- [x] Loading states (loading.tsx)
+- [x] CSV Report Export (contributions + draw schedule)
+- [x] Download Report button on committee detail
+- [x] Landing page polish (How It Works, 6 features, testimonials, final CTA)
+- [x] PWA manifest (installable on mobile)
+- [x] Settings link in dashboard nav
+
+### Deployment
+- [x] Vercel deployment (live, auto-deploy from GitHub)
+
+---
+
+## Summary: All 3 Phases Complete!
+
+### App is Live
+- Web app deployed on Vercel
+- Auto-deploys on every GitHub push
+- PWA installable on mobile devices
+
+### What Works End to End
+1. User signup, login, logout
+2. Create committee with members and draw schedule
+3. Track monthly contributions (paid/pending toggle)
+4. View draw schedule (who gets the pot each month)
+5. Edit and delete committees
+6. Download CSV reports
+7. Profile settings (name, phone)
+8. Protected routes with session management
+9. Error handling and loading states
+
+---
+
+## Future Roadmap (Phase 4+)
+
+### High Priority
+- [ ] Member invite links (shareable URLs for members to claim profiles)
+- [ ] Member-side view (members see their committees and status)
 - [ ] WhatsApp reminder integration
-- [ ] PWA setup (installable on mobile)
-- [ ] Error boundary and loading states (error.tsx, loading.tsx)
-- [ ] Future: React Native mobile app
+- [ ] Payment gateway integration (JazzCash/EasyPaisa then Stripe)
+- [ ] Email notifications
 
-### Deferred from Code Review (Nice to Have)
+### Medium Priority
 - [ ] Unit tests for draw-schedule.ts
-- [ ] Auth input validation (email format, password length server-side)
-- [ ] Login redirect param support (?redirect=/committees/xxx)
-- [ ] Duplicate member prevention (name+phone unique constraint)
+- [ ] E2E tests with Playwright
+- [ ] CI/CD pipeline (GitHub Actions)
 - [ ] Reproducible lottery (store seed for auditability)
-- [ ] Global error boundary (error.tsx)
-- [ ] Not-found page customization (not-found.tsx)
-- [ ] Loading skeletons (loading.tsx)
+- [ ] Dark mode toggle
+- [ ] Multi-language (full Urdu script support)
+
+### Mobile App (Phase 5)
+- [ ] React Native app
+- [ ] Google Play Store deployment
+- [ ] iOS App Store deployment
 
 ---
 
@@ -95,6 +96,7 @@
 
 Jab bhi session start karein:
 1. Is file mein check karein current phase
-2. "Next Phase" wale tasks se shuru karein
+2. "Future Roadmap" wale tasks se shuru karein
 
-**Current next action:** Phase 3 - Vercel deployment + polish
+**Current status:** All 3 phases complete. App is live on Vercel.
+**Next priority:** Member invite links or payment integration
