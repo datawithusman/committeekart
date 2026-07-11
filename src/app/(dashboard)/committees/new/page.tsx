@@ -15,12 +15,18 @@
 
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createCommittee } from "../actions";
 
-export default function NewCommitteePage() {
+/**
+ * Inner form component that uses useSearchParams.
+ * Must be wrapped in Suspense for static prerendering to work.
+ */
+function CommitteeForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const errorMessage = searchParams.get("error");
   const [memberCount, setMemberCount] = useState(1);
 
   // Add a new member input row.
@@ -53,6 +59,13 @@ export default function NewCommitteePage() {
 
       {/* Form */}
       <main className="mx-auto max-w-2xl px-6 py-8">
+        {/* Error message from server action redirect */}
+        {errorMessage && (
+          <div className="mb-6 rounded-lg bg-danger-light px-4 py-3 text-sm text-danger">
+            {decodeURIComponent(errorMessage)}
+          </div>
+        )}
+
         <form action={createCommittee} className="space-y-8">
           {/* Section: Committee Details */}
           <div className="rounded-2xl border border-border bg-card p-6">
@@ -120,8 +133,11 @@ export default function NewCommitteePage() {
                     min="1"
                     max="60"
                     placeholder="10"
-                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
+                  <p className="mt-1.5 text-xs text-muted">
+                    Duration aur total members barabar hone chahiye (aap + add kiye hue). Har member ko ek baar pot milta hai.
+                  </p>
                 </div>
               </div>
 
@@ -223,5 +239,17 @@ export default function NewCommitteePage() {
         </form>
       </main>
     </div>
+  );
+}
+
+/**
+ * Default export wraps CommitteeForm in a Suspense boundary.
+ * This is required by Next.js for useSearchParams() during prerendering.
+ */
+export default function NewCommitteePage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-muted">Loading...</div>}>
+      <CommitteeForm />
+    </Suspense>
   );
 }

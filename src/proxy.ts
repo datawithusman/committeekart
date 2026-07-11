@@ -45,7 +45,9 @@ export async function proxy(request: NextRequest) {
             ...options,
             httpOnly: true,
             sameSite: "lax",
-            secure: false,
+            // Secure cookies only in production (HTTPS).
+            // In development (HTTP) secure cookies are dropped by browsers.
+            secure: process.env.NODE_ENV === "production",
             path: "/",
           });
         });

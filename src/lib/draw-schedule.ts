@@ -51,10 +51,10 @@ function shuffle<T>(array: T[]): T[] {
  * Generate the full draw schedule for a committee.
  * Returns an array of DrawEntry, one per month.
  *
- * Rules:
- * - Each member appears exactly once (if member count equals duration)
- * - If fewer members than months, some members may repeat (rare case)
- * - If more members than months, not everyone gets a pot (invalid config)
+ * Rules (ROSCA fairness guarantee):
+ * - memberIds.length MUST equal durationMonths
+ * - Each member appears exactly once across the schedule
+ * - This ensures fair distribution: everyone gets the pot once
  */
 export function generateDrawSchedule(
   input: GenerateScheduleInput
@@ -64,6 +64,12 @@ export function generateDrawSchedule(
   if (memberIds.length === 0 || durationMonths === 0) {
     return [];
   }
+
+  // Safety check: member count should equal duration for fair distribution.
+  // If they do not match, we use the smaller value to avoid duplicates
+  // or unassigned months. The server action validates this, but this is
+  // a defensive guard.
+  const effectiveCount = Math.min(memberIds.length, durationMonths);
 
   let orderedMemberIds: string[] = [];
 
@@ -76,7 +82,6 @@ export function generateDrawSchedule(
     case "fixed":
       // Use the organizer provided order.
       if (!fixedOrder || fixedOrder.length === 0) {
-        // Fallback to member order if no fixed order given.
         orderedMemberIds = [...memberIds];
       } else {
         orderedMemberIds = [...fixedOrder];
@@ -86,7 +91,6 @@ export function generateDrawSchedule(
     case "auction":
       // Auction is decided month by month later.
       // For now, assign members in their original order as placeholder.
-      // These will be updated when auctions happen.
       orderedMemberIds = [...memberIds];
       break;
 
@@ -95,14 +99,15 @@ export function generateDrawSchedule(
   }
 
   // Build schedule: one entry per month.
-  // If duration > members, cycle through members again.
+  // Each member gets the pot exactly once.
   const schedule: DrawEntry[] = [];
-  for (let month = 0; month < durationMonths; month++) {
+  for (let month = 0; month < effectiveCount; month++) {
     schedule.push({
       monthIndex: month,
-      memberId: orderedMemberIds[month % orderedMemberIds.length],
+      memberId: orderedMemberIds[month],
     });
   }
 
   return schedule;
 }
+

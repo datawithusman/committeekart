@@ -3,11 +3,16 @@
  * Handles creating a committee with members and generating the draw schedule.
  *
  * Flow:
- * 1. Validate form data
+ * 1. Validate form data (thorough server-side checks)
  * 2. Insert committee row
  * 3. Insert member rows (including the organizer as a member)
  * 4. Generate draw schedule and insert draw rows
- * 5. Redirect to committee detail page
+ * 5. Create contribution rows for ALL months (not just month 0)
+ * 6. Redirect to committee detail page
+ *
+ * Note: Creation is not wrapped in a DB transaction yet (Supabase client
+ * limitation). If a step fails, the committee row is deleted via cascade
+ * cleanup to avoid orphaned partial data.
  */
 
 "use server";
@@ -16,13 +21,38 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { generateDrawSchedule } from "@/lib/draw-schedule";
-import type { DrawType } from "@/lib/types";
+import { addMonths } from "@/lib/utils";
+
+/** Allowed draw type values from the database enum. */
+const VALID_DRAW_TYPES = ["lottery", "fixed", "auction"] as const;
+type ValidDrawType = (typeof VALID_DRAW_TYPES)[number];
+
+/** Safely parse and validate a draw type string. */
+function parseDrawType(value: string): ValidDrawType | null {
+  return VALID_DRAW_TYPES.includes(value as ValidDrawType)
+    ? (value as ValidDrawType)
+    : null;
+}
+
+/** Redirect helper that preserves the error message in the URL. */
+function redirectToError(message: string): never {
+  redirect(`/committees/new?error=${encodeURIComponent(message)}`);
+}
 
 /**
  * Create a new committee with members and auto-generated draw schedule.
  *
  * The organizer is automatically added as the first member.
  * All other members are added by name and phone (no account required).
+ *
+ * Validation rules:
+ * - Name: 1-100 characters
+ * - Monthly amount: positive number, at least 100
+ * - Duration: must equal total member count (ROSCA fairness guarantee)
+ * - Draw type: must be one of lottery, fixed, auction
+ * - Start date: valid date string
+ * - Members: at least 1 external member (organizer is member 1)
+ * - Member names: 1-100 characters each
  */
 export async function createCommittee(formData: FormData) {
   const supabase = await createSupabaseServerClient();
@@ -36,44 +66,89 @@ export async function createCommittee(formData: FormData) {
     redirect("/login");
   }
 
-  // Extract and validate committee fields.
-  const name = (formData.get("name") as string).trim();
-  const description = (formData.get("description") as string)?.trim() || null;
-  const monthlyAmount = parseFloat(formData.get("monthlyAmount") as string);
-  const durationMonths = parseInt(formData.get("durationMonths") as string, 10);
-  const drawType = (formData.get("drawType") as string) as DrawType;
-  const startDate = formData.get("startDate") as string;
+  // ---- Extract and validate committee fields ----
 
-  // Extract members. The form sends member names as member_0, member_1, etc.
+  const name = (formData.get("name") as string)?.trim() || "";
+  const description = (formData.get("description") as string)?.trim() || null;
+
+  const monthlyAmountRaw = formData.get("monthlyAmount") as string;
+  const monthlyAmount = parseFloat(monthlyAmountRaw);
+  const monthlyAmountIsValid =
+    !Number.isNaN(monthlyAmount) && monthlyAmount >= 100;
+
+  const durationRaw = formData.get("durationMonths") as string;
+  const durationMonths = parseInt(durationRaw, 10);
+  const durationIsValid =
+    !Number.isNaN(durationMonths) && durationMonths >= 1 && durationMonths <= 60;
+
+  const drawTypeRaw = (formData.get("drawType") as string) || "";
+  const drawType = parseDrawType(drawTypeRaw);
+
+  const startDate = (formData.get("startDate") as string)?.trim() || "";
+
+  // ---- Extract members ----
+  // The form sends member names as member_0, member_1, etc.
   // And optionally member_phone_0, member_phone_1, etc.
-  const memberNames: string[] = [];
-  const memberPhones: string[] = [];
+  const memberEntries: { name: string; phone: string }[] = [];
   let memberIndex = 0;
 
   while (formData.has(`member_${memberIndex}`)) {
-    const memberName = (formData.get(`member_${memberIndex}`) as string).trim();
-    const memberPhone = (formData.get(`member_phone_${memberIndex}`) as string)?.trim() || "";
+    const memberName = (formData.get(`member_${memberIndex}`) as string)?.trim() || "";
+    const memberPhone =
+      (formData.get(`member_phone_${memberIndex}`) as string)?.trim() || "";
     if (memberName) {
-      memberNames.push(memberName);
-      memberPhones.push(memberPhone);
+      memberEntries.push({ name: memberName, phone: memberPhone });
     }
     memberIndex++;
   }
 
   // The organizer is automatically added as a member.
   // So total member count = entered members + 1 (organizer).
-  const totalMemberCount = memberNames.length + 1;
+  const totalMemberCount = memberEntries.length + 1;
 
-  // Basic validation.
-  if (!name || monthlyAmount <= 0 || durationMonths < 1) {
-    redirect("/committees/new?error=" + encodeURIComponent("Form data sahi nahi hai."));
+  // ---- Validation ----
+
+  if (!name || name.length > 100) {
+    redirectToError("Committee ka naam 1 se 100 characters ke beech hona chahiye.");
+  }
+
+  if (!monthlyAmountIsValid) {
+    redirectToError("Monthly amount kam az kam Rs. 100 hona chahiye.");
+  }
+
+  if (!durationIsValid) {
+    redirectToError("Duration 1 se 60 months ke beech hona chahiye.");
+  }
+
+  if (!drawType) {
+    redirectToError("Draw type sahi nahi hai. Lottery, Fixed, ya Auction chunein.");
+  }
+
+  if (!startDate || Number.isNaN(new Date(startDate).getTime())) {
+    redirectToError("Start date sahi nahi hai.");
   }
 
   if (totalMemberCount < 2) {
-    redirect("/committees/new?error=" + encodeURIComponent("Kam az kam 2 members chahiye (aap + 1 aur)."));
+    redirectToError("Kam az kam 2 members chahiye (aap + 1 aur).");
   }
 
-  // 1. Insert the committee.
+  // ROSCA fairness guarantee: duration must equal member count.
+  // Each member gets the pot exactly once.
+  if (durationMonths !== totalMemberCount) {
+    redirectToError(
+      `Duration (${durationMonths} months) aur members (${totalMemberCount}) barabar hone chahiye. ` +
+        "Har member ko ek baar pot milna chahiye."
+    );
+  }
+
+  // Validate member name lengths.
+  for (const entry of memberEntries) {
+    if (entry.name.length > 100) {
+      redirectToError("Member ka naam 100 characters se lamba nahi ho sakta.");
+    }
+  }
+
+  // ---- 1. Insert the committee ----
   const { data: committee, error: committeeError } = await supabase
     .from("committees")
     .insert({
@@ -92,11 +167,11 @@ export async function createCommittee(formData: FormData) {
 
   if (committeeError || !committee) {
     console.error("Committee insert error:", committeeError);
-    redirect("/committees/new?error=" + encodeURIComponent("Committee banane mein masla ho gaya."));
+    redirectToError("Committee banane mein masla ho gaya. Dobara koshish karein.");
   }
 
-  // 2. Insert members. Organizer is the first member.
-  // We need their profile name.
+  // ---- 2. Insert members ----
+  // Get organizer's profile name.
   const { data: profile } = await supabase
     .from("profiles")
     .select("full_name")
@@ -112,11 +187,11 @@ export async function createCommittee(formData: FormData) {
       name: organizerName,
       phone: null,
     },
-    ...memberNames.map((memberName, i) => ({
+    ...memberEntries.map((entry) => ({
       committee_id: committee.id,
       user_id: null,
-      name: memberName,
-      phone: memberPhones[i] || null,
+      name: entry.name,
+      phone: entry.phone || null,
     })),
   ];
 
@@ -127,10 +202,12 @@ export async function createCommittee(formData: FormData) {
 
   if (membersError || !insertedMembers) {
     console.error("Members insert error:", membersError);
-    redirect("/committees/new?error=" + encodeURIComponent("Members add karne mein masla ho gaya."));
+    // Cleanup: delete the committee (cascades to members/draws/contributions).
+    await supabase.from("committees").delete().eq("id", committee.id);
+    redirectToError("Members add karne mein masla ho gaya.");
   }
 
-  // 3. Generate draw schedule and insert draw rows.
+  // ---- 3. Generate draw schedule and insert draw rows ----
   const memberIds = insertedMembers.map((m) => m.id);
   const schedule = generateDrawSchedule({
     memberIds,
@@ -138,35 +215,66 @@ export async function createCommittee(formData: FormData) {
     drawType,
   });
 
-  // 4. Update each member's draw_month_index.
+  // Update each member's draw_month_index and insert the draw row.
+  // Build batch arrays for efficiency.
+  const drawsToInsert = schedule.map((entry) => ({
+    committee_id: committee.id,
+    month_index: entry.monthIndex,
+    member_id: entry.memberId,
+    amount: monthlyAmount * totalMemberCount,
+    status: "scheduled" as const,
+  }));
+
+  const { error: drawsError } = await supabase.from("draws").insert(drawsToInsert);
+
+  if (drawsError) {
+    console.error("Draws insert error:", drawsError);
+    await supabase.from("committees").delete().eq("id", committee.id);
+    redirectToError("Draw schedule banane mein masla ho gaya.");
+  }
+
+  // Update members' draw_month_index values.
   for (const entry of schedule) {
     await supabase
       .from("members")
       .update({ draw_month_index: entry.monthIndex })
       .eq("id", entry.memberId);
-
-    // Insert the draw row.
-    await supabase.from("draws").insert({
-      committee_id: committee.id,
-      month_index: entry.monthIndex,
-      member_id: entry.memberId,
-      amount: monthlyAmount * totalMemberCount,
-      status: "scheduled",
-    });
   }
 
-  // 5. Create contribution rows for month 0 (first month).
-  // Each member owes their first payment.
-  const contributionsToInsert = insertedMembers.map((m) => ({
-    committee_id: committee.id,
-    member_id: m.id,
-    month_index: 0,
-    due_date: startDate,
-    amount: monthlyAmount,
-    status: "pending",
-  }));
+  // ---- 4. Create contribution rows for ALL months ----
+  // Each member owes a payment every month for the full duration.
+  const startDateObj = new Date(startDate);
+  const contributionsToInsert: {
+    committee_id: string;
+    member_id: string;
+    month_index: number;
+    due_date: string;
+    amount: number;
+    status: "pending";
+  }[] = [];
 
-  await supabase.from("contributions").insert(contributionsToInsert);
+  for (let month = 0; month < durationMonths; month++) {
+    for (const member of insertedMembers) {
+      contributionsToInsert.push({
+        committee_id: committee.id,
+        member_id: member.id,
+        month_index: month,
+        due_date: addMonths(startDateObj, month).toISOString().split("T")[0],
+        amount: monthlyAmount,
+        status: "pending",
+      });
+    }
+  }
+
+  const { error: contributionsError } = await supabase
+    .from("contributions")
+    .insert(contributionsToInsert);
+
+  if (contributionsError) {
+    console.error("Contributions insert error:", contributionsError);
+    await supabase.from("committees").delete().eq("id", committee.id);
+    redirectToError("Contributions setup mein masla ho gaya.");
+  }
 
   revalidatePath("/dashboard");
   redirect(`/committees/${committee.id}`);

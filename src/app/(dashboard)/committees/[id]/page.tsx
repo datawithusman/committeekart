@@ -65,13 +65,24 @@ export default async function CommitteeDetailPage({
     .filter((c) => c.status === "paid")
     .reduce((sum, c) => sum + Number(c.amount), 0);
 
-  const month0Contributions = (contributions || []).filter(
-    (c) => c.month_index === 0
+  // Determine the current month index based on start date.
+  // Month 0 = first month, month 1 = second month, etc.
+  const startDateObj = new Date(committee.start_date);
+  const now = new Date();
+  const currentMonthIndex = Math.max(
+    0,
+    (now.getFullYear() - startDateObj.getFullYear()) * 12 +
+      (now.getMonth() - startDateObj.getMonth())
   );
-  const paidThisMonth = month0Contributions.filter(
+
+  // Contributions for the current month.
+  const currentMonthContributions = (contributions || []).filter(
+    (c) => c.month_index === Math.min(currentMonthIndex, committee.duration_months - 1)
+  );
+  const paidThisMonth = currentMonthContributions.filter(
     (c) => c.status === "paid"
   ).length;
-  const pendingThisMonth = month0Contributions.filter(
+  const pendingThisMonth = currentMonthContributions.filter(
     (c) => c.status === "pending"
   ).length;
 
@@ -164,12 +175,12 @@ export default async function CommitteeDetailPage({
 
           {/* Contributions list */}
           <div className="space-y-2">
-            {month0Contributions.length === 0 ? (
+            {currentMonthContributions.length === 0 ? (
               <p className="py-4 text-center text-sm text-muted">
                 Abhi koi contribution record nahi hai.
               </p>
             ) : (
-              month0Contributions.map((contribution) => {
+              currentMonthContributions.map((contribution) => {
                 const member = (members || []).find(
                   (m) => m.id === contribution.member_id
                 );
