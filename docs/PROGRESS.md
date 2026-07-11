@@ -8,21 +8,16 @@
 ## Phase 1 - Foundation [COMPLETE]
 
 - [x] Project scaffold (Next.js 16, TypeScript, Tailwind v4)
-- [x] Supabase client setup (browser + server)
-- [x] Database schema (5 tables, enums, RLS, triggers)
-- [x] Auth middleware/proxy (protected routes, session refresh)
-- [x] Landing page, Signup/Login/Logout, Dashboard placeholder
-- [x] Git + GitHub repo + Supabase connected
+- [x] Supabase client setup, database schema, auth system
+- [x] Landing page, signup/login/logout, dashboard
 
 ---
 
 ## Phase 2 - Core Features [COMPLETE]
 
-- [x] Draw schedule generator (lottery, fixed, auction)
-- [x] Committee create flow (form + server action + auto members)
-- [x] Dashboard with real committees list and stats
-- [x] Committee detail page (members, contributions, draw schedule)
-- [x] Interactive contribution tracking (mark paid/pending)
+- [x] Committee create flow with draw schedule generator
+- [x] Contribution tracking (mark paid/pending)
+- [x] Committee detail page (members, contributions, draws)
 - [x] Code review fixes (security, validation, error handling)
 - [x] 14 professional documents (9,600+ lines)
 
@@ -30,60 +25,87 @@
 
 ## Phase 3 - Polish and Deploy [COMPLETE]
 
+- [x] Settings/profile page
+- [x] Committee edit/delete
+- [x] CSV report export
+- [x] Error boundary, 404, loading states
+- [x] Landing page polish (how it works, features, testimonials)
+- [x] PWA manifest
+- [x] Live on Vercel (auto-deploy)
+
+---
+
+## Phase 3.5 - UX Fixes [COMPLETE]
+
+- [x] Shared DashboardNav component on all pages
+- [x] Clickable logo everywhere
+- [x] Settings + Logout on ALL dashboard pages
+- [x] Login redirect param support (?redirect=)
+- [x] 404 and error pages with Home link
+- [x] Mobile responsiveness (nav, member rows, header)
+
+---
+
+## Phase 4 - Social and Quality [COMPLETE]
+
 ### Features Built
-- [x] Settings/Profile page (view/edit name, phone, plan display)
-- [x] Committee Edit (name, description, status)
-- [x] Committee Delete (with confirmation: type DELETE)
-- [x] Global error boundary (error.tsx)
-- [x] Custom 404 page (not-found.tsx)
-- [x] Loading states (loading.tsx)
-- [x] CSV Report Export (contributions + draw schedule)
-- [x] Download Report button on committee detail
-- [x] Landing page polish (How It Works, 6 features, testimonials, final CTA)
-- [x] PWA manifest (installable on mobile)
-- [x] Settings link in dashboard nav
+- [x] Member invite links (unique tokens, shareable URLs)
+- [x] Member invite page (/invite/[token]) with claim flow
+- [x] InviteMembers component (Copy Link + WhatsApp share)
+- [x] WhatsApp payment reminders on contribution rows
+- [x] Member-side dashboard (joined committees section)
+- [x] RLS policy for members to view committees (migration 0004)
 
-### Deployment
-- [x] Vercel deployment (live, auto-deploy from GitHub)
+### Testing and CI/CD
+- [x] 13 Vitest unit tests for draw-schedule.ts
+- [x] GitHub Actions CI pipeline (lint, type-check, test, build)
+- [x] Test script added to package.json
 
----
-
-## Summary: All 3 Phases Complete!
-
-### App is Live
-- Web app deployed on Vercel
-- Auto-deploys on every GitHub push
-- PWA installable on mobile devices
-
-### What Works End to End
-1. User signup, login, logout
-2. Create committee with members and draw schedule
-3. Track monthly contributions (paid/pending toggle)
-4. View draw schedule (who gets the pot each month)
-5. Edit and delete committees
-6. Download CSV reports
-7. Profile settings (name, phone)
-8. Protected routes with session management
-9. Error handling and loading states
+### Database Migrations
+- [x] 0003: invite_token column on members table
+- [x] 0004: members can view committees they joined (RLS fix)
 
 ---
 
-## Future Roadmap (Phase 4+)
+## Summary: All 4 Phases Complete!
+
+### Full Feature List
+1. User auth (signup, login, logout, protected routes)
+2. Committee CRUD (create, read, update, delete)
+3. Draw schedule (lottery, fixed, auction)
+4. Contribution tracking (paid/pending toggle)
+5. CSV report export
+6. Settings/profile management
+7. Member invite links (WhatsApp + copy)
+8. Member-side view (joined committees)
+9. WhatsApp payment reminders
+10. Error handling (error boundary, 404, loading)
+11. PWA installable on mobile
+12. 13 automated unit tests
+13. CI/CD pipeline (GitHub Actions)
+14. 14 professional documents
+
+### Database Migrations
+- 0001: Initial schema (5 tables, enums, RLS, triggers)
+- 0002: Fix RLS infinite recursion
+- 0003: Member invite tokens
+- 0004: Members can view committees (RLS)
+
+---
+
+## Future Roadmap (Phase 5+)
 
 ### High Priority
-- [ ] Member invite links (shareable URLs for members to claim profiles)
-- [ ] Member-side view (members see their committees and status)
-- [ ] WhatsApp reminder integration
-- [ ] Payment gateway integration (JazzCash/EasyPaisa then Stripe)
-- [ ] Email notifications
+- [ ] Payment gateway integration (JazzCash/EasyPaisa, then Stripe)
+- [ ] Email notifications (payment confirmations, monthly summaries)
+- [ ] Dark mode toggle
+- [ ] Full Urdu script support (RTL layout)
 
 ### Medium Priority
-- [ ] Unit tests for draw-schedule.ts
 - [ ] E2E tests with Playwright
-- [ ] CI/CD pipeline (GitHub Actions)
 - [ ] Reproducible lottery (store seed for auditability)
-- [ ] Dark mode toggle
-- [ ] Multi-language (full Urdu script support)
+- [ ] Committee templates (quick create with presets)
+- [ ] Notification center (in-app notifications)
 
 ### Mobile App (Phase 5)
 - [ ] React Native app
@@ -94,9 +116,5 @@
 
 ## How to Resume
 
-Jab bhi session start karein:
-1. Is file mein check karein current phase
-2. "Future Roadmap" wale tasks se shuru karein
-
-**Current status:** All 3 phases complete. App is live on Vercel.
-**Next priority:** Member invite links or payment integration
+**Current status:** All 4 phases complete. App is live on Vercel.
+**Next priority:** Payment integration or React Native mobile app
