@@ -85,7 +85,7 @@ This means:
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/YOUR_USERNAME/committeekart.git
+git clone https://github.com/datawithusman/committeekart.git
 cd committeekart
 ```
 
