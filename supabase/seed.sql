@@ -1,0 +1,31 @@
+-- ============================================
+-- CommitteeKart: Seed Data (for local testing)
+-- ============================================
+-- This file is for development reference only.
+-- Do NOT run on production.
+--
+-- Note: Seed data requires a real auth user to exist first.
+-- After you sign up in the app, you can manually test by
+-- inserting committees via the app UI.
+
+
+-- Example query structure (replace <your-user-id> with a real profile id):
+--
+-- insert into committees (
+--   organizer_id, name, monthly_amount, member_count,
+--   duration_months, draw_type, start_date, status
+-- ) values (
+--   '<your-user-id>',
+--   'Office Committee',
+--   5000.00,
+--   10,
+--   10,
+--   'lottery',
+--   '2026-07-01',
+--   'active'
+-- );
+--
+-- insert into members (committee_id, name, phone, draw_month_index) values
+--   ('<committee-id>', 'Ahmed Raza', '03001234567', 0),
+--   ('<committee-id>', 'Fatima Khan', '03112345678', 1),
+--   ('<committee-id>', 'Bilal Ahmed', '03212345678', 2);
