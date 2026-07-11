@@ -19,9 +19,11 @@
 - [x] Step 1: Database schema migration (0001_initial_schema.sql)
 - [x] Step 1: Seed data template (seed.sql)
 - [x] Step 1: Environment variable template (.env.local.example)
+- [x] Step 2: Git repo + GitHub repo created + pushed (main branch)
+- [x] Step 2: GitHub URL: https://github.com/datawithusman/committeekart
 
 ### In Progress
-- [ ] Step 2: Git init + GitHub repo + first commit + push
+- [ ] Step 3: Supabase setup (aap project banayenge, env fill karenge)
 
 ### Next Up
 - [ ] Step 3: Supabase setup (aap Supabase project banayenge, env fill karenge)

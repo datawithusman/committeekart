@@ -98,7 +98,7 @@ npm install
 ```bash
 cp .env.local.example .env.local
 ```
-Open `.env.local` and add your Supabase URL and anon key.
+Open `.env.local` and add your Supabase URL and publishable key.
 
 4. Set up the database:
    - Go to your Supabase project SQL Editor
