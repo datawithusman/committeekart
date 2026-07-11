@@ -286,7 +286,17 @@ export default function Home() {
       <footer className="border-t border-border bg-card">
         <div className="mx-auto max-w-6xl px-6 py-8">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <span className="text-lg font-bold text-primary">CommitteeKart</span>
+            <div className="flex items-center gap-6">
+              <span className="text-lg font-bold text-primary">CommitteeKart</span>
+              <div className="flex gap-4 text-sm">
+                <Link href="/login" className="text-muted hover:text-foreground">
+                  Login
+                </Link>
+                <Link href="/signup" className="text-muted hover:text-foreground">
+                  Sign Up
+                </Link>
+              </div>
+            </div>
             <p className="text-sm text-muted">
               Track, Don&apos;t Hold. Built with Next.js and Supabase.
             </p>

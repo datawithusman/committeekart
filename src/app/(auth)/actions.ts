@@ -71,10 +71,12 @@ export async function signup(formData: FormData) {
 
 /**
  * Login action: authenticates an existing user.
+ * Honors the "redirect" query param so deep links work after login.
  */
 export async function login(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const redirectTo = (formData.get("redirect") as string) || "/dashboard";
 
   const supabase = await createSupabaseServerClient();
 
@@ -88,7 +90,9 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  redirect("/dashboard");
+  // Only allow internal redirects (prevent open redirect attacks).
+  const safeRedirect = redirectTo.startsWith("/") ? redirectTo : "/dashboard";
+  redirect(safeRedirect);
 }
 
 /**

@@ -8,7 +8,7 @@
 
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { logout } from "@/app/(auth)/actions";
+import DashboardNav from "@/components/shared/DashboardNav";
 import { formatCurrency } from "@/lib/utils";
 
 export default async function DashboardPage() {
@@ -56,34 +56,12 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top navigation */}
-      <nav className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-xl font-bold text-primary">CommitteeKart</span>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted">{user?.email}</span>
-            <Link
-              href="/settings"
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted-light"
-            >
-              Settings
-            </Link>
-            <form action={logout}>
-              <button
-                type="submit"
-                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted-light"
-              >
-                Logout
-              </button>
-            </form>
-          </div>
-        </div>
-      </nav>
+      <DashboardNav userEmail={user?.email} />
 
       {/* Main content */}
       <main className="mx-auto max-w-6xl px-6 py-12">
         {/* Welcome and create button */}
-        <div className="mb-8 flex items-start justify-between">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
               Salam, {displayName}! 👋

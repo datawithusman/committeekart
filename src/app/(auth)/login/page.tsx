@@ -9,7 +9,7 @@ import { login } from "../actions";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; redirect?: string }>;
 }) {
   const params = await searchParams;
 
@@ -48,6 +48,11 @@ export default async function LoginPage({
 
           {/* Login form */}
           <form action={login} className="space-y-4">
+            {/* Hidden redirect field for deep link support */}
+            {params.redirect && (
+              <input type="hidden" name="redirect" value={params.redirect} />
+            )}
+
             <div>
               <label
                 htmlFor="email"

@@ -10,12 +10,12 @@
  * Organizer can mark contributions as paid/pending.
  */
 
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatCurrency, formatDate, getInitials } from "@/lib/utils";
 import ContributionRow from "@/components/committees/ContributionRow";
 import CommitteeSettings from "@/components/committees/CommitteeSettings";
+import DashboardNav from "@/components/shared/DashboardNav";
 
 export default async function CommitteeDetailPage({
   params,
@@ -25,8 +25,10 @@ export default async function CommitteeDetailPage({
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
 
-  // Verify the user is authenticated (RLS will enforce access).
-  await supabase.auth.getUser();
+  // Get the current user for the nav bar.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Fetch the committee.
   const { data: committee } = await supabase
@@ -89,21 +91,12 @@ export default async function CommitteeDetailPage({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top nav */}
-      <nav className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <Link
-            href="/dashboard"
-            className="text-sm text-muted hover:text-foreground"
-          >
-            ← Dashboard
-          </Link>
-          <h1 className="text-lg font-semibold text-foreground">
-            {committee.name}
-          </h1>
-          <div className="w-20"></div>
-        </div>
-      </nav>
+      <DashboardNav
+        userEmail={user?.email}
+        title={committee.name}
+        backHref="/dashboard"
+        backLabel="← Dashboard"
+      />
 
       <main className="mx-auto max-w-4xl px-6 py-8">
         {/* Committee Settings (edit/delete) */}

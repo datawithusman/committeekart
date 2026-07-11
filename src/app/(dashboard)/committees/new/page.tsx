@@ -16,15 +16,15 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createCommittee } from "../actions";
+import DashboardNav from "@/components/shared/DashboardNav";
 
 /**
  * Inner form component that uses useSearchParams.
  * Must be wrapped in Suspense for static prerendering to work.
  */
 function CommitteeForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const errorMessage = searchParams.get("error");
   const [memberCount, setMemberCount] = useState(1);
@@ -41,21 +41,11 @@ function CommitteeForm() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top nav */}
-      <nav className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="text-sm text-muted hover:text-foreground"
-          >
-            ← Dashboard
-          </button>
-          <h1 className="text-lg font-semibold text-foreground">
-            New Committee
-          </h1>
-          <div className="w-20"></div>
-        </div>
-      </nav>
+      <DashboardNav
+        title="New Committee"
+        backHref="/dashboard"
+        backLabel="← Dashboard"
+      />
 
       {/* Form */}
       <main className="mx-auto max-w-2xl px-6 py-8">
@@ -190,7 +180,7 @@ function CommitteeForm() {
             <div className="space-y-3">
               {/* Dynamic member rows */}
               {Array.from({ length: memberCount }).map((_, index) => (
-                <div key={index} className="flex gap-3">
+                <div key={index} className="flex flex-col gap-3 sm:flex-row">
                   <input
                     name={`member_${index}`}
                     type="text"
@@ -202,7 +192,7 @@ function CommitteeForm() {
                     name={`member_phone_${index}`}
                     type="tel"
                     placeholder="Phone (optional)"
-                    className="w-40 rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-foreground placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:w-40"
                   />
                 </div>
               ))}

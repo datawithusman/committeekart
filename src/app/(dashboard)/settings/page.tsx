@@ -7,9 +7,8 @@
  * Navigation: accessible from the dashboard nav bar.
  */
 
-import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { logout } from "@/app/(auth)/actions";
+import DashboardNav from "@/components/shared/DashboardNav";
 import { updateProfile } from "./actions";
 
 export default async function SettingsPage({
@@ -34,23 +33,12 @@ export default async function SettingsPage({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top navigation */}
-      <nav className="border-b border-border bg-card">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <Link href="/dashboard" className="text-sm text-muted hover:text-foreground">
-            ← Dashboard
-          </Link>
-          <h1 className="text-lg font-semibold text-foreground">Settings</h1>
-          <form action={logout}>
-            <button
-              type="submit"
-              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted-light"
-            >
-              Logout
-            </button>
-          </form>
-        </div>
-      </nav>
+      <DashboardNav
+        userEmail={user?.email}
+        title="Settings"
+        backHref="/dashboard"
+        backLabel="← Dashboard"
+      />
 
       <main className="mx-auto max-w-2xl px-6 py-8">
         {/* Error or success message */}
