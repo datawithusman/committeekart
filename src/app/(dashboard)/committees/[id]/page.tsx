@@ -11,10 +11,12 @@
  */
 
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatCurrency, formatDate, getInitials } from "@/lib/utils";
 import ContributionRow from "@/components/committees/ContributionRow";
 import CommitteeSettings from "@/components/committees/CommitteeSettings";
+import InviteMembers from "@/components/committees/InviteMembers";
 import DashboardNav from "@/components/shared/DashboardNav";
 
 export default async function CommitteeDetailPage({
@@ -24,6 +26,12 @@ export default async function CommitteeDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
+
+  // Get the request origin for building invite URLs.
+  const headersList = await headers();
+  const requestOrigin = headersList.get("origin") || headersList.get("host")
+    ? `${headersList.get("x-forwarded-proto") || "https"}://${headersList.get("host")}`
+    : "https://committeekart.vercel.app";
 
   // Get the current user for the nav bar.
   const {
@@ -105,6 +113,18 @@ export default async function CommitteeDetailPage({
           initialName={committee.name}
           initialDescription={committee.description}
           initialStatus={committee.status}
+        />
+
+        {/* Invite Members panel */}
+        <InviteMembers
+          members={(members || []).map((m) => ({
+            id: m.id,
+            name: m.name,
+            phone: m.phone,
+            inviteToken: m.invite_token,
+            userId: m.user_id,
+          }))}
+          origin={requestOrigin}
         />
         {/* Committee header card */}
         <div className="mb-6 rounded-2xl border border-border bg-card p-6">

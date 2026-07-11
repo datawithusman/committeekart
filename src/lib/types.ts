@@ -57,6 +57,8 @@ export interface Member {
   phone: string | null;
   /** Which month (0 based index) this member gets the pot. Null until draw is assigned. */
   draw_month_index: number | null;
+  /** Unique token for invite links. Member uses this to claim their profile. */
+  invite_token: string | null;
   created_at: string;
 }
 

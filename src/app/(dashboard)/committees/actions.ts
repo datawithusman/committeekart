@@ -186,12 +186,14 @@ export async function createCommittee(formData: FormData) {
       user_id: user.id,
       name: organizerName,
       phone: null,
+      invite_token: crypto.randomUUID(),
     },
     ...memberEntries.map((entry) => ({
       committee_id: committee.id,
       user_id: null,
       name: entry.name,
       phone: entry.phone || null,
+      invite_token: crypto.randomUUID(),
     })),
   ];
 
