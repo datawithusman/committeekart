@@ -15,6 +15,7 @@ import { notFound } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatCurrency, formatDate, getInitials } from "@/lib/utils";
 import ContributionRow from "@/components/committees/ContributionRow";
+import CommitteeSettings from "@/components/committees/CommitteeSettings";
 
 export default async function CommitteeDetailPage({
   params,
@@ -105,6 +106,13 @@ export default async function CommitteeDetailPage({
       </nav>
 
       <main className="mx-auto max-w-4xl px-6 py-8">
+        {/* Committee Settings (edit/delete) */}
+        <CommitteeSettings
+          committeeId={id}
+          initialName={committee.name}
+          initialDescription={committee.description}
+          initialStatus={committee.status}
+        />
         {/* Committee header card */}
         <div className="mb-6 rounded-2xl border border-border bg-card p-6">
           <div className="flex items-start justify-between">
