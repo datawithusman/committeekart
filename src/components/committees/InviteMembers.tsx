@@ -59,14 +59,10 @@ export default function InviteMembers({ members, origin }: InviteMembersProps) {
     }
   }
 
-  function shareOnWhatsApp(name: string, token: string) {
+  function getWhatsAppUrl(name: string, token: string): string {
     const url = getInviteUrl(token);
     const message = `Salam ${name}! Aapko ek committee mein add kiya gaya hai CommitteeKart pe. Yahan click karke join karein: ${url}`;
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-
-    // Use direct location change for maximum reliability.
-    // window.open can be blocked by popup blockers.
-    window.location.href = whatsappUrl;
+    return `https://wa.me/?text=${encodeURIComponent(message)}`;
   }
 
   if (unclaimedMembers.length === 0) {
@@ -121,16 +117,17 @@ export default function InviteMembers({ members, origin }: InviteMembersProps) {
                     {copiedId === member.id ? "Copied!" : "Copy Link"}
                   </button>
 
-                  {/* WhatsApp share */}
-                  <button
-                    onClick={() =>
-                      member.inviteToken &&
-                      shareOnWhatsApp(member.name, member.inviteToken)
-                    }
-                    className="rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-white hover:bg-success/90"
-                  >
-                    WhatsApp
-                  </button>
+                  {/* WhatsApp share - using anchor tag for reliability */}
+                  {member.inviteToken && (
+                    <a
+                      href={getWhatsAppUrl(member.name, member.inviteToken)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-lg bg-success px-3 py-1.5 text-xs font-medium text-white hover:bg-success/90"
+                    >
+                      WhatsApp
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
