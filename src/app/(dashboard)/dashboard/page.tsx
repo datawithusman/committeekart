@@ -36,24 +36,11 @@ export default async function DashboardPage() {
     .order("created_at", { ascending: false });
 
   // Fetch committees this user is a MEMBER of (not organizer).
-  // Uses the members table to find linked committees.
-  const { data: memberRows } = await supabase
-    .from("members")
-    .select("committee_id, draw_month_index")
-    .eq("user_id", user?.id);
+  // Uses the SECURITY DEFINER RPC function to bypass RLS issues.
+  const { data: joinedCommitteesData } = await supabase
+    .rpc("get_joined_committees");
 
-  const memberCommitteeIds = (memberRows || []).map((m) => m.committee_id);
-
-  // Fetch the committee details for committees where user is a member
-  // but NOT the organizer.
-  const { data: joinedCommittees } = memberCommitteeIds.length
-    ? await supabase
-        .from("committees")
-        .select("*")
-        .in("id", memberCommitteeIds)
-        .neq("organizer_id", user?.id)
-        .order("created_at", { ascending: false })
-    : { data: [] };
+  const joinedCommittees = joinedCommitteesData || [];
 
   const committees = ownedCommittees || [];
 
@@ -197,11 +184,7 @@ export default async function DashboardPage() {
               Meri Joined Committees
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              {joinedCommittees.map((committee) => {
-                // Find this user's member row to get draw month.
-                const memberRow = (memberRows || []).find(
-                  (m) => m.committee_id === committee.id
-                );
+              {joinedCommittees.map((committee: { id: string; name: string; monthly_amount: number; draw_month_index: number | null }) => {
                 return (
                   <Link
                     key={committee.id}
@@ -226,8 +209,8 @@ export default async function DashboardPage() {
                       <div>
                         <p className="text-xs text-muted">My Pot Month</p>
                         <p className="font-medium text-foreground">
-                          {memberRow?.draw_month_index !== null
-                            ? `Month ${(memberRow?.draw_month_index ?? 0) + 1}`
+                          {committee.draw_month_index !== null
+                            ? `Month ${committee.draw_month_index + 1}`
                             : "TBD"}
                         </p>
                       </div>
