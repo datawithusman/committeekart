@@ -14,6 +14,30 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { formatCurrency } from "@/lib/utils";
 import { claimMembership } from "./actions";
 
+/** Shape of the member data returned by get_member_by_invite_token RPC. */
+interface InviteMember {
+  id: string;
+  committee_id: string;
+  user_id: string | null;
+  name: string;
+  phone: string | null;
+  draw_month_index: number | null;
+  invite_token: string | null;
+}
+
+/** Shape of the committee data returned by get_committee_for_invite RPC. */
+interface InviteCommittee {
+  id: string;
+  name: string;
+  description: string | null;
+  monthly_amount: number;
+  member_count: number;
+  duration_months: number;
+  draw_type: string;
+  start_date: string;
+  status: string;
+}
+
 export default async function InvitePage({
   params,
 }: {
@@ -22,12 +46,13 @@ export default async function InvitePage({
   const { token } = await params;
   const supabase = await createSupabaseServerClient();
 
-  // Look up the member by invite token.
-  const { data: member } = await supabase
-    .from("members")
-    .select("*")
-    .eq("invite_token", token)
+  // Look up the member by invite token using the public RPC function.
+  // Direct table reads are blocked by RLS for unauthenticated users.
+  const { data: memberData } = await supabase
+    .rpc("get_member_by_invite_token", { token })
     .maybeSingle();
+
+  const member = memberData as unknown as InviteMember | null;
 
   // Invalid or expired token.
   if (!member) {
@@ -52,12 +77,12 @@ export default async function InvitePage({
     );
   }
 
-  // Get committee info.
-  const { data: committee } = await supabase
-    .from("committees")
-    .select("*")
-    .eq("id", member.committee_id)
-    .single();
+  // Get committee info using the public RPC function.
+  const { data: committeeData } = await supabase
+    .rpc("get_committee_for_invite", { committee_uuid: member.committee_id })
+    .maybeSingle();
+
+  const committee = committeeData as unknown as InviteCommittee | null;
 
   if (!committee) {
     return (
