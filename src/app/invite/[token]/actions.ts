@@ -1,8 +1,11 @@
 /*
  * Claim membership server action.
  *
- * Links the current logged-in user to a member row.
- * This "claims" the invite so the member can see their committee data.
+ * Links the current logged-in user to a member row using the
+ * claim_member_profile RPC function (SECURITY DEFINER, bypasses RLS).
+ *
+ * This is needed because RLS only allows organizers to UPDATE the
+ * members table. Members cannot update their own row directly.
  */
 
 "use server";
@@ -10,6 +13,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+/** Shape of the claim_member_profile RPC result. */
+interface ClaimResult {
+  success: boolean;
+  committee_id: string | null;
+  error: string | null;
+}
 
 export async function claimMembership(formData: FormData) {
   const supabase = await createSupabaseServerClient();
@@ -23,41 +33,21 @@ export async function claimMembership(formData: FormData) {
   }
 
   const token = formData.get("token") as string;
-  const memberId = formData.get("memberId") as string;
 
-  // Verify the token matches the member.
-  const { data: member } = await supabase
-    .from("members")
-    .select("id, user_id, committee_id")
-    .eq("id", memberId)
-    .eq("invite_token", token)
-    .maybeSingle();
+  // Call the SECURITY DEFINER function to claim the profile.
+  const { data, error } = await supabase
+    .rpc("claim_member_profile", { token })
+    .single();
 
-  if (!member) {
-    redirect("/?error=" + encodeURIComponent("Invalid invite token."));
+  const result = data as unknown as ClaimResult;
+
+  if (error || !result || !result.success) {
+    const message = result?.error || error?.message || "Claim karne mein masla ho gaya.";
+    redirect("/?error=" + encodeURIComponent(message));
   }
 
-  // Already claimed by this user.
-  if (member.user_id === user.id) {
-    redirect(`/committees/${member.committee_id}`);
-  }
-
-  // Already claimed by someone else.
-  if (member.user_id !== null) {
-    redirect("/?error=" + encodeURIComponent("Yeh invite pehle se use ho chuka hai."));
-  }
-
-  // Claim it: link the user account to this member.
-  const { error } = await supabase
-    .from("members")
-    .update({ user_id: user.id })
-    .eq("id", memberId)
-    .is("user_id", "null"); // Safety: only if not already claimed
-
-  if (error) {
-    redirect("/?error=" + encodeURIComponent("Claim karne mein masla ho gaya."));
-  }
-
-  revalidatePath(`/committees/${member.committee_id}`);
-  redirect(`/committees/${member.committee_id}`);
+  // Success: redirect to the committee page.
+  revalidatePath(`/committees/${result.committee_id}`);
+  revalidatePath("/dashboard");
+  redirect(`/committees/${result.committee_id}`);
 }
