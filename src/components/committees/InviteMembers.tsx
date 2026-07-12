@@ -63,7 +63,10 @@ export default function InviteMembers({ members, origin }: InviteMembersProps) {
     const url = getInviteUrl(token);
     const message = `Salam ${name}! Aapko ek committee mein add kiya gaya hai CommitteeKart pe. Yahan click karke join karein: ${url}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, "_blank");
+
+    // Use direct location change for maximum reliability.
+    // window.open can be blocked by popup blockers.
+    window.location.href = whatsappUrl;
   }
 
   if (unclaimedMembers.length === 0) {
