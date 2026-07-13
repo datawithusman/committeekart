@@ -45,6 +45,13 @@ export async function updateProfile(formData: FormData) {
     redirect("/settings?error=" + encodeURIComponent("Profile update mein masla ho gaya."));
   }
 
+  // Also update the member rows where this user is linked.
+  // Committee members see the name from the members table, not profiles.
+  await supabase
+    .from("members")
+    .update({ name: fullName, phone })
+    .eq("user_id", user.id);
+
   revalidatePath("/dashboard");
   revalidatePath("/settings");
   redirect("/settings?success=" + encodeURIComponent("Profile update ho gaya!"));

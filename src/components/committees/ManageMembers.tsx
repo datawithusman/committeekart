@@ -20,15 +20,15 @@ import { getInitials } from "@/lib/utils";
 
 /** Shape of add_committee_member RPC result. */
 interface AddMemberResult {
-  id: string | null;
+  member_id: string | null;
   invite_token: string | null;
-  error: string | null;
+  error_msg: string | null;
 }
 
 /** Shape of remove_committee_member RPC result. */
 interface RemoveMemberResult {
   success: boolean;
-  error: string | null;
+  error_msg: string | null;
 }
 
 export interface ManageMember {
@@ -79,8 +79,8 @@ export default function ManageMembers({
 
       const data = rawData as unknown as AddMemberResult;
 
-      if (error || !data || data.error) {
-        setErrorMsg(data?.error || error?.message || "Member add nahi hua.");
+      if (error || !data || data.error_msg) {
+        setErrorMsg(data?.error_msg || error?.message || "Member add nahi hua.");
         return;
       }
 
@@ -109,7 +109,7 @@ export default function ManageMembers({
       const data = rawData as unknown as RemoveMemberResult;
 
       if (error || !data || !data.success) {
-        setErrorMsg(data?.error || error?.message || "Remove nahi hua.");
+        setErrorMsg(data?.error_msg || error?.message || "Remove nahi hua.");
         return;
       }
 
