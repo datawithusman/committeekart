@@ -54,16 +54,39 @@
 - [x] InviteMembers component (Copy Link + WhatsApp share)
 - [x] WhatsApp payment reminders on contribution rows
 - [x] Member-side dashboard (joined committees section)
-- [x] RLS policy for members to view committees (migration 0004)
+- [x] Manage Members panel (add/remove members)
+- [x] Organizer badge fix (user_id based, not index based)
+- [x] Profile name sync to members table
 
 ### Testing and CI/CD
 - [x] 13 Vitest unit tests for draw-schedule.ts
 - [x] GitHub Actions CI pipeline (lint, type-check, test, build)
-- [x] Test script added to package.json
 
-### Database Migrations
-- [x] 0003: invite_token column on members table
-- [x] 0004: members can view committees they joined (RLS fix)
+### All Manual Tests Passed (10/10)
+- [x] Test 1: Login + Dashboard
+- [x] Test 2: Settings (edit name/phone)
+- [x] Test 3: Committee Edit + Delete
+- [x] Test 4: New Committee Creation
+- [x] Test 5: Invite Members Panel
+- [x] Test 6: Member Invite Flow (claim profile)
+- [x] Test 7: Member-side View (joined committees)
+- [x] Test 8: WhatsApp Reminders (skipped, all paid)
+- [x] Test 9: CSV Report Export
+- [x] Test 10: Error/404 + Mobile Responsive
+
+### Database Migrations (12 total)
+- 0001: Initial schema (5 tables, enums, RLS, triggers)
+- 0002: Fix RLS infinite recursion
+- 0003: Member invite tokens
+- 0004: Members can view committees (RLS, later replaced by 0005)
+- 0005: Final RLS fix using SECURITY DEFINER function
+- 0006: Public invite lookup functions (bypass RLS)
+- 0007: Claim membership function (bypass RLS)
+- 0008: Get joined committees function (bypass RLS)
+- 0009: Member management functions (later replaced by 0010/0011)
+- 0010: Fix member management SQL ambiguity
+- 0011: Sync duration on member add/remove
+- 0012: Repair existing committee data
 
 ---
 
@@ -75,46 +98,53 @@
 3. Draw schedule (lottery, fixed, auction)
 4. Contribution tracking (paid/pending toggle)
 5. CSV report export
-6. Settings/profile management
+6. Settings/profile management (with name sync)
 7. Member invite links (WhatsApp + copy)
 8. Member-side view (joined committees)
 9. WhatsApp payment reminders
-10. Error handling (error boundary, 404, loading)
-11. PWA installable on mobile
-12. 13 automated unit tests
-13. CI/CD pipeline (GitHub Actions)
-14. 14 professional documents
-
-### Database Migrations
-- 0001: Initial schema (5 tables, enums, RLS, triggers)
-- 0002: Fix RLS infinite recursion
-- 0003: Member invite tokens
-- 0004: Members can view committees (RLS)
+10. Manage members (add/remove with duration sync)
+11. Error handling (error boundary, 404, loading)
+12. PWA installable on mobile
+13. 13 automated unit tests
+14. CI/CD pipeline (GitHub Actions)
+15. 14 professional documents
 
 ---
 
 ## Future Roadmap (Phase 5+)
 
-### High Priority
+### High Priority (Next)
+- [ ] React Native mobile app (for Google Play Store)
+- [ ] Google Play Store listing and deployment
 - [ ] Payment gateway integration (JazzCash/EasyPaisa, then Stripe)
 - [ ] Email notifications (payment confirmations, monthly summaries)
-- [ ] Dark mode toggle
-- [ ] Full Urdu script support (RTL layout)
 
 ### Medium Priority
+- [ ] Dark mode toggle
+- [ ] Full Urdu script support (RTL layout)
 - [ ] E2E tests with Playwright
-- [ ] Reproducible lottery (store seed for auditability)
 - [ ] Committee templates (quick create with presets)
 - [ ] Notification center (in-app notifications)
 
-### Mobile App (Phase 5)
-- [ ] React Native app
-- [ ] Google Play Store deployment
+### Low Priority
+- [ ] Reproducible lottery (store seed for auditability)
 - [ ] iOS App Store deployment
+- [ ] Multi-language support
 
 ---
 
 ## How to Resume
 
 **Current status:** All 4 phases complete. App is live on Vercel.
-**Next priority:** Payment integration or React Native mobile app
+All 10 manual tests passed.
+
+**Next priority:** Phase 5 - React Native mobile app for Google Play Store
+**GitHub:** https://github.com/datawithusman/committeekart
+
+### Key Architecture Notes for Next Session
+- Supabase project ID: josuxzrioqpufdidtbct
+- All RLS-sensitive operations use SECURITY DEFINER functions (migrations 0005-0011)
+- WhatsApp share buttons use `<a>` tags (not window.open) for reliability
+- Duration must always equal member count (ROSCA fairness guarantee)
+- Members can exist without user accounts (organizer adds by name + phone)
+- Member profiles are claimed via invite tokens (/invite/[token])
