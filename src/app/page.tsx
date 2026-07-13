@@ -13,6 +13,7 @@
  */
 
 import Link from "next/link";
+import ThemeToggle from "@/components/shared/ThemeToggle";
 
 export default function Home() {
   return (
@@ -23,6 +24,7 @@ export default function Home() {
           <span className="text-2xl font-bold text-primary">CommitteeKart</span>
         </div>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link
             href="/login"
             className="rounded-lg px-4 py-2 text-sm font-medium text-foreground hover:bg-muted-light"

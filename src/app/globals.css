@@ -3,10 +3,16 @@
  * Brand personality: warm, trustworthy, simple ("madadgar dost" feel)
  * Primary color: deep green (trust, money)
  * Accent color: amber (friendliness, warmth)
+ *
+ * Supports light and dark mode via CSS variables.
+ * Dark mode is toggled by adding "dark" class to <html>.
  */
 
 @import "tailwindcss";
 
+/* ============================================
+ * LIGHT MODE (default)
+ * ============================================ */
 :root {
   /* Brand colors */
   --background: #fafaf9;
@@ -41,6 +47,38 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* ============================================
+ * DARK MODE
+ * ============================================ */
+.dark {
+  --background: #0c0a09;
+  --foreground: #fafaf9;
+
+  --primary: #2dd4bf;
+  --primary-foreground: #0c0a09;
+  --primary-light: #134e4a;
+  --primary-dark: #5eead4;
+
+  --accent: #fbbf24;
+  --accent-foreground: #0c0a09;
+  --accent-light: #78350f;
+
+  --success: #4ade80;
+  --success-light: #14532d;
+  --warning: #fb923c;
+  --warning-light: #7c2d12;
+  --danger: #f87171;
+  --danger-light: #7f1d1d;
+
+  --muted: #a8a29e;
+  --muted-light: #1c1917;
+  --border: #292524;
+  --card: #1c1917;
+}
+
+/* ============================================
+ * THEME MAPPING
+ * ============================================ */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -18,6 +18,7 @@
 import Link from "next/link";
 import { useTransition } from "react";
 import { logout } from "@/app/(auth)/actions";
+import ThemeToggle from "./ThemeToggle";
 
 export interface DashboardNavProps {
   userEmail?: string | null;
@@ -55,13 +56,14 @@ export default function DashboardNav({
           </Link>
         </div>
 
-        {/* Right: User email (hidden on mobile) + Settings + Logout */}
+        {/* Right: User email (hidden on mobile) + Theme + Settings + Logout */}
         <div className="flex items-center gap-2 sm:gap-4">
           {userEmail && (
             <span className="hidden text-sm text-muted lg:inline">
               {userEmail}
             </span>
           )}
+          <ThemeToggle />
           <Link
             href="/settings"
             className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted-light"
