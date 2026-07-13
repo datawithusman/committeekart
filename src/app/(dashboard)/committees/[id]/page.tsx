@@ -17,6 +17,7 @@ import { formatCurrency, formatDate, getInitials } from "@/lib/utils";
 import ContributionRow from "@/components/committees/ContributionRow";
 import CommitteeSettings from "@/components/committees/CommitteeSettings";
 import InviteMembers from "@/components/committees/InviteMembers";
+import ManageMembers from "@/components/committees/ManageMembers";
 import DashboardNav from "@/components/shared/DashboardNav";
 
 export default async function CommitteeDetailPage({
@@ -125,6 +126,18 @@ export default async function CommitteeDetailPage({
             userId: m.user_id,
           }))}
           origin={requestOrigin}
+        />
+
+        {/* Manage Members panel (add/remove) */}
+        <ManageMembers
+          committeeId={id}
+          organizerId={committee.organizer_id}
+          members={(members || []).map((m) => ({
+            id: m.id,
+            name: m.name,
+            phone: m.phone,
+            userId: m.user_id,
+          }))}
         />
         {/* Committee header card */}
         <div className="mb-6 rounded-2xl border border-border bg-card p-6">
@@ -288,7 +301,7 @@ export default async function CommitteeDetailPage({
             Saare Members ({committee.member_count})
           </h3>
           <div className="space-y-2">
-            {(members || []).map((member, index) => (
+            {(members || []).map((member) => (
               <div
                 key={member.id}
                 className="flex items-center justify-between rounded-lg border border-border px-4 py-3"
@@ -300,7 +313,7 @@ export default async function CommitteeDetailPage({
                   <div>
                     <p className="font-medium text-foreground">
                       {member.name}
-                      {index === 0 && (
+                      {member.user_id === committee.organizer_id && (
                         <span className="ml-2 rounded bg-primary-light px-2 py-0.5 text-xs text-primary">
                           Organizer
                         </span>
